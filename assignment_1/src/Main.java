@@ -31,24 +31,22 @@ public class Main {
                 .collect(Collectors.toList());
     }
 
-    private static ArrayList<Integer> XorBytes(ArrayList<Integer> a, ArrayList<Integer>b) {
-        ArrayList<Integer> result = new ArrayList<>();
-        zip(a, b).stream().forEach(i -> result.add(i.getKey() ^ i.getValue()));
-        return result;
+    private static List<Integer> XorBytes(ArrayList<Integer> a, ArrayList<Integer>b) {
+        return zip(a, b).stream()
+                .map(i -> i.getKey() ^ i.getValue())
+                .collect(Collectors.toList());
     }
 
-    private static ArrayList<String> decrypt(ArrayList<String> cyphers, String key) {
-        ArrayList<String> decrypted = new ArrayList<>();
-        cyphers.stream().forEach(cypher -> {
-            ArrayList<Integer> dec = XorBytes(GetBytes(cypher), GetBytes(key));
+    private static List<String> decrypt(ArrayList<String> cyphers, String key) {
+        return cyphers.stream().map(cypher -> {
+            List<Integer> dec = XorBytes(GetBytes(cypher), GetBytes(key));
             StringBuilder res = new StringBuilder();
-            dec.stream().forEach(i -> res.append((char)i.byteValue()));
-            decrypted.add(res.toString() + "__" + cypher.substring(key.length()));
-        });
-        return decrypted;
+            dec.stream().forEach(i -> res.append((char) i.byteValue()));
+            return res.toString() + "__" + cypher.substring(key.length());
+        }).collect(Collectors.toList());
     }
 
-    private static void print(ArrayList<String> strings) {
+    private static void print(List<String> strings) {
         IntStream.range(0, strings.size()).forEach(i ->
                 System.out.println(Integer.toString(i+1) + ". " + strings.get(i)));
     }
@@ -79,7 +77,7 @@ public class Main {
         //decrypt this
         cyphers.add("32510ba9babebbbefd001547a810e67149caee11d945cd7fc81a05e9f85aac650e9052ba6a8cd8257bf14d13e6f0a803b54fde9e77472dbff89d71b57bddef121336cb85ccb8f3315f4b52e301d16e9f52f904");
 
-        ArrayList<String> decrypted = decrypt(cyphers, key);
+        List<String> decrypted = decrypt(cyphers, key);
         print(decrypted);
     }
 }
