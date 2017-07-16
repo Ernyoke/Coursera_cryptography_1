@@ -1,51 +1,56 @@
+import javafx.util.Pair;
+
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * Created by Ervin_K53SV on 7/15/2017.
  */
 public class Main {
 
+    private static final int HEX = 16;
+
     private static ArrayList<Integer> GetBytes(String str) {
         StringBuilder builder = new StringBuilder();
         ArrayList<Integer> bytes = new ArrayList<>();
-        for (int i = 0; i < str.length(); ++i) {
+        IntStream.range(0, str.length()).forEach(i -> {
             builder.append(str.charAt(i));
             if (i % 2 == 1) {
-                bytes.add(Integer.parseInt(builder.toString(), 16));
+                bytes.add(Integer.parseInt(builder.toString(), HEX));
                 builder.setLength(0);
             }
-        }
+        });
         return bytes;
     }
 
+    private static <A, B> List<Pair<A, B>> zip(List<A> as, List<B> bs) {
+        return IntStream.range(0, Math.min(as.size(), bs.size()))
+                .mapToObj(i -> new Pair<>(as.get(i), bs.get(i)))
+                .collect(Collectors.toList());
+    }
+
     private static ArrayList<Integer> XorBytes(ArrayList<Integer> a, ArrayList<Integer>b) {
-        Iterator<Integer> itA = a.iterator();
-        Iterator<Integer> itB = b.iterator();
         ArrayList<Integer> result = new ArrayList<>();
-        while (itA.hasNext() && itB.hasNext()) {
-            result.add(itA.next() ^ itB.next());
-        }
+        zip(a, b).stream().forEach(i -> result.add(i.getKey() ^ i.getValue()));
         return result;
     }
 
     private static ArrayList<String> decrypt(ArrayList<String> cyphers, String key) {
         ArrayList<String> decrypted = new ArrayList<>();
-        for (String cypher: cyphers) {
+        cyphers.stream().forEach(cypher -> {
             ArrayList<Integer> dec = XorBytes(GetBytes(cypher), GetBytes(key));
             StringBuilder res = new StringBuilder();
-            for (Integer i : dec) {
-                res.append((char)i.byteValue());
-            }
+            dec.stream().forEach(i -> res.append((char)i.byteValue()));
             decrypted.add(res.toString() + "__" + cypher.substring(key.length()));
-        }
+        });
         return decrypted;
     }
 
     private static void print(ArrayList<String> strings) {
-        for (int i = 0; i < strings.size(); ++i) {
-            System.out.println(Integer.toString(i+1) + ". " + strings.get(i));
-        }
+        IntStream.range(0, strings.size()).forEach(i ->
+                System.out.println(Integer.toString(i+1) + ". " + strings.get(i)));
     }
 
     public static void main(String[] args) {
